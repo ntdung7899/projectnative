@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { HelperText, Icon, TextInput } from 'react-native-paper';
 function Signup({ navigation }) {
+  const [userName, setUserName] = useState('');
   const [numberKey, setNumberKey] = useState({ number: '' });
   const [emailKey, setEmailKey] = useState({ email: '' });
   const [isErrorEmail, setErrorEmail] = useState(true);
@@ -19,7 +20,7 @@ function Signup({ navigation }) {
 
   //check phone
   const validationNumber = (value) => {
-    if (value.length <= 10 && /0/.test(value) && /^\d+$/.test(value)) {
+    if (value.length <= 10 && /^[0-9\b]+$/.test(value)) {
       setNumberKey({ number: value });
       if (value.length == 10) {
         setErrorPhone(false);
@@ -28,7 +29,7 @@ function Signup({ navigation }) {
     }
     else if (value.length > 10) {
       setErrorPhone(true);
-      setNumberKey({ number: '' });
+
     }
     else {
       setErrorPhone(true);
@@ -50,6 +51,10 @@ function Signup({ navigation }) {
 
     }
   }
+  // check null input
+  const hasErrors = () => {
+    return userName.length < 1;
+  };
   const checkSubmit = () => {
     if (isErrorEmail == true) {
       console.log(isErrorEmail);
@@ -68,32 +73,54 @@ function Signup({ navigation }) {
     <View style={styles.container}>
       <View style={styles.containerTop}>
         <Text style={styles.signupText}>Create Account</Text>
-        <TextInput
-          style={styles.input}
-          placeholder='Username'
-          underlineColorAndroid='transparent'
-          left={<TextInput.Icon name="account" />} />
-        <TextInput
-          error={isErrorEmail}
-          style={styles.input}
-          placeholder='Email'
-          value={emailKey.email}
-          underlineColorAndroid='transparent'
-          left={<TextInput.Icon name="email" />}
-          onChangeText={(value) => validationEmail(value)} />
-        <TextInput
-          error={isErrorPhone}
-          style={styles.input}
-          placeholder='Phone'
-          value={numberKey.number}
-          underlineColorAndroid='transparent'
-          left={<TextInput.Icon name="phone" />}
-          onChangeText={(value) => validationNumber(value)}
-        />
+        <View>
+          <TextInput
+            style={styles.input}
+            value={userName}
+            placeholder='Username'
+            mode='outlined'
+            underlineColorAndroid='transparent'
+            left={<TextInput.Icon name="account" />}
+            onChangeText={(text) => setUserName(text)} />
+          <HelperText type='error' visible={hasErrors()}>
+            Username is empty !
+          </HelperText>
+        </View>
+        <View>
+          <TextInput
+            error={isErrorEmail}
+            style={styles.input}
+            mode='outlined'
+            placeholder='Email'
+            value={emailKey.email}
+            underlineColorAndroid='transparent'
+            left={<TextInput.Icon name="email" />}
+            
+            onChangeText={(value) => validationEmail(value)} />
+          <HelperText type='error' visible={isErrorEmail} >
+            E-mail Address is required!
+          </HelperText>
+        </View>
+        <View>
+          <TextInput
+            error={isErrorPhone}
+            style={styles.input}
+            placeholder='Phone'
+            mode='outlined'
+            value={numberKey.number}
+            underlineColorAndroid='transparent'
+            left={<TextInput.Icon name="phone" />}
+            onChangeText={(value) => validationNumber(value)}
+          />
+          <HelperText type='error' visible={isErrorPhone} >
+            Contact Number should consist of 10 digits only !
+          </HelperText>
+        </View>
+
 
         <TextInput
           style={styles.input}
-
+          mode='outlined'
           placeholder='Password'
           secureTextEntry={true}
           underlineColorAndroid='transparent'
@@ -105,9 +132,9 @@ function Signup({ navigation }) {
         </View>
       </View>
       <View style={styles.containerFooter}>
-        <Text style={{ color: 'white', marginTop: 50 , marginBottom: 30, fontWeight: 'bold' }}>Or signup with social media account </Text>
+        <Text style={{ color: 'white', marginTop: 50, marginBottom: 30, fontWeight: 'bold' }}>Or signup with social media account </Text>
         <View style={styles.signupWithSocial}>
-          <TouchableOpacity style={{paddingTop: 10}}>
+          <TouchableOpacity style={{ paddingTop: 10 }}>
             <View style={styles.imgSignupSocial}>
               <Image
                 source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Facebook_circle_pictogram.svg/1200px-Facebook_circle_pictogram.svg.png' }}
@@ -123,7 +150,7 @@ function Signup({ navigation }) {
           </TouchableOpacity>
         </View>
         <View style={styles.signupWithSocial}>
-          <TouchableOpacity style={{paddingTop: 10}}>
+          <TouchableOpacity style={{ paddingTop: 10 }}>
             <View style={styles.imgSignupSocial}>
               <Image source={{ uri: 'https://www.vhv.rs/dpng/d/551-5511916_2019-pro-exp-media-inc-circle-twitter-logo.png' }}
                 style={{
@@ -160,10 +187,9 @@ const styles = StyleSheet.create({
     fontFamily: 'bold',
     color: 'black'
   },
-  
+
   input: {
     width: 350,
-    margin: 12,
     height: 40,
     backgroundColor: null
   },
@@ -189,10 +215,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingLeft: 10
   },
-  textInsideButtonSocial:{
-    color: 'black', 
-    paddingTop: 5, 
-    paddingLeft: 5, 
+  textInsideButtonSocial: {
+    color: 'black',
+    paddingTop: 5,
+    paddingLeft: 5,
     paddingRight: 10
   }
 })
