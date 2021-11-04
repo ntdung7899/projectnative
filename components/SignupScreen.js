@@ -15,7 +15,7 @@ function Signup({ navigation }) {
   const [numberKey, setNumberKey] = useState({ number: '' });
   const [emailKey, setEmailKey] = useState({ email: '' });
   const [isErrorEmail, setErrorEmail] = useState(true);
-
+  const [isSelected, setSelection] = useState(true);
   const [isErrorPhone, setErrorPhone] = useState(true);
 
   //check phone
@@ -122,9 +122,10 @@ function Signup({ navigation }) {
           style={styles.input}
           mode='outlined'
           placeholder='Password'
-          secureTextEntry={true}
+          secureTextEntry={isSelected}
           underlineColorAndroid='transparent'
-          left={<TextInput.Icon name="lock" />} />
+          left={<TextInput.Icon name="lock" />} 
+          right={<TextInput.Icon name="eye" onPress={() => setSelection(!isSelected)}/>}/>
         <View style={styles.btnSignup} >
           <TouchableOpacity onPress={checkSubmit} >
             <Text style={{ color: 'white', fontSize: 19 }}>Sign up</Text>
