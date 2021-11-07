@@ -15,7 +15,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 
 function Login({ navigation }) {
-  const [isSelected, setSelection] = useState();
+  const [isSelected, setSelection] = useState(true);
   return (
     <SafeAreaView>
       <View style={styles.container}>
@@ -34,8 +34,9 @@ function Login({ navigation }) {
             style={styles.input}
             placeholder='Password'
             underlineColorAndroid='transparent'
-            secureTextEntry={true}
-            left={<TextInput.Icon name="lock" />} />
+            secureTextEntry={isSelected}
+            left={<TextInput.Icon name="lock" />} 
+            right={<TextInput.Icon name="eye" onPress={() => setSelection(!isSelected)}/>}/>
         </View>
         <View style={[{ width: "40%", marginTop: 20, backgroundColor: "red" }]}>
           <Button
