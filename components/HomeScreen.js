@@ -28,18 +28,36 @@ function HomeScreen({ navigation, route }) {
             console.log('cant save value: '+ e)
         }
 
-        console.log('done')
+        console.log('save done')
     }
     // get value storage
     const getStorageValue = async () => {
         try {
             const jsonValue = await AsyncStorage.getItem('@data')
-            return JSON.parse(jsonValue)
+            const parseValue = eval('(' + jsonValue + ')');
+            var ids = new Set(parseValue.map(d => d.id));
+            var merged = [...parseValue, ...fake.filter(d => !ids.has(d.id))];
+             setData(merged);
+            // return jsonValue != null ? JSON.parse(jsonValue) : null
         } catch (e) {
             console.log('cant get value: ')
         }
 
     }
+    const fake = [
+        {
+            id: 1,
+            title: 'Tập thể dục',
+            content: 'Gập bụng 1000 cái, đu xà 1000 cái',
+            begin: 'March 21, 2012'
+        },
+        {
+            id: 2,
+            title: 'Shopping',
+            content: 'Dắt người yêu đi shopping',
+            begin: '30/11/2021'
+        },
+    ]
     const DATA = [
         {
             id: 1,
@@ -122,11 +140,11 @@ function HomeScreen({ navigation, route }) {
 
         }
     }, [route.params?.data]);
-    var currentUser = []
     useEffect(() => {
         LogBox.ignoreLogs(['Animated: `useNativeDriver`']);
-         currentUser =  getStorageValue()
-         console.log(currentUser)
+         getStorageValue()
+        
+         
         
     }, [])
 
