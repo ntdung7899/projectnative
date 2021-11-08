@@ -14,8 +14,43 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 
-function Login({ navigation }) {
+function Login({ navigation, route }) {
   const [isSelected, setSelection] = useState(true);
+  const [user, setUser] = useState({
+    username: '',
+    password: '',
+  });
+  const [checkUser, setCheckUser] = useState({
+    username: '',
+    password: '',
+  })
+  useEffect(() => {
+    if (route.params?.userName) {
+      const userName = route.params.userName;
+      setCheckUser(userName);
+      // console.log(checkUser)
+    }
+  }, [route.params?.userName])
+  const onPressSignUp = () => {
+    navigation.navigate('Signup')
+  }
+  const checkLogin = () => {
+    if(user.username.length == 0){
+      Alert.alert('Vui lòng nhập user name và password')
+      return;
+    }
+    console.log(checkUser)
+    console.log(user)
+    if(user.username === checkUser.username && user.password === checkUser.password){
+      navigation.navigate('Home');
+    }
+    else{
+      
+      Alert.alert('Tên tài khoản hoặc mật khẩu không chính xác!')
+    }
+
+    
+  }
   return (
     <SafeAreaView>
       <View style={styles.container}>
@@ -25,7 +60,9 @@ function Login({ navigation }) {
         <View style={styles.userStyle}>
           <TextInput
             style={styles.input}
+            value={user.username}
             placeholder='Username'
+            onChangeText = { (text) => setUser({username: text, password: user.password})}
             underlineColorAndroid='transparent'
             left={<TextInput.Icon name="account" />} />
         </View>
@@ -33,32 +70,35 @@ function Login({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder='Password'
+            value={user.password}
+            onChangeText = { (text) => setUser({username: user.username, password: text})}
             underlineColorAndroid='transparent'
             secureTextEntry={isSelected}
-            left={<TextInput.Icon name="lock" />} 
-            right={<TextInput.Icon name="eye" onPress={() => setSelection(!isSelected)}/>}/>
+            left={<TextInput.Icon name="lock" />}
+            right={<TextInput.Icon name="eye" onPress={() => setSelection(!isSelected)} />} />
         </View>
         <View style={[{ width: "40%", marginTop: 20, backgroundColor: "red" }]}>
           <Button
             title="Login"
             color="#FF3D00"
+            onPress = {() => checkLogin()}
           />
         </View>
 
         <Text style={{ marginTop: 30, color: 'blue' }}>Forgot Password ?</Text>
         <View style={styles.loginWith}>
-          <TouchableOpacity style={{paddingRight: 10}}>
+          <TouchableOpacity style={{ paddingRight: 10 }}>
             <ImageBackground
               source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Facebook_circle_pictogram.svg/1200px-Facebook_circle_pictogram.svg.png' }}
               style={{
                 height: 50,
                 width: 50,
                 opacity: 1,
-                
+
               }}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={{paddingRight: 10}}> 
+          <TouchableOpacity style={{ paddingRight: 10 }}>
             <ImageBackground
               source={{ uri: 'https://www.vhv.rs/dpng/d/551-5511916_2019-pro-exp-media-inc-circle-twitter-logo.png' }}
               style={{
@@ -68,7 +108,7 @@ function Login({ navigation }) {
               }}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={{paddingRight: 10}}>
+          <TouchableOpacity style={{ paddingRight: 10 }}>
             <ImageBackground
               source={{ uri: 'https://www.kindpng.com/picc/m/117-1171378_transparent-facebook-circle-icon-png-instagram-icono-facebook.png' }}
               style={{
@@ -82,7 +122,7 @@ function Login({ navigation }) {
         <View style={styles.signupText}>
           <Text style={{ marginTop: 40, color: 'gray' }}>Don't have an account ? </Text>
           <TouchableOpacity style={{ marginTop: 40, }}
-            onPress={() => navigation.navigate('Signup')}>
+            onPress={() => onPressSignUp()}>
             <Text style={{ color: 'blue', fontWeight: 'bold' }}>Sign up</Text>
           </TouchableOpacity>
         </View>
@@ -141,7 +181,7 @@ const styles = StyleSheet.create({
   signupText: {
     flexDirection: 'row',
   },
-  loginWith:{
+  loginWith: {
     marginBottom: 30,
     marginTop: 30,
     flexDirection: 'row'

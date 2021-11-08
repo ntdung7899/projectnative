@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { HelperText, Icon, TextInput } from 'react-native-paper';
 function Signup({ navigation }) {
-  const [userName, setUserName] = useState('');
+  const [user, setUserName] = useState({username: '', password: ''});
   const [numberKey, setNumberKey] = useState({ number: '' });
   const [emailKey, setEmailKey] = useState({ email: '' });
   const [isErrorEmail, setErrorEmail] = useState(true);
@@ -53,19 +53,19 @@ function Signup({ navigation }) {
   }
   // check null input
   const hasErrors = () => {
-    return userName.length < 1;
+    return user.username.length < 1;
   };
   const checkSubmit = () => {
     if (isErrorEmail == true) {
       console.log(isErrorEmail);
-      Alert.alert('Please check your email  again !');
+      
     }
     else if (isErrorPhone == true) {
       console.log(isErrorPhone + '' + isErrorEmail);
-      Alert.alert('Please check your phone  again !');
+      
     }
     else {
-      navigation.goBack();
+      navigation.navigate('Login', {userName: user});
       console.log(isErrorPhone + '' + isErrorEmail);
     }
   }
@@ -76,12 +76,12 @@ function Signup({ navigation }) {
         <View>
           <TextInput
             style={styles.input}
-            value={userName}
-            placeholder='Username'
+            value={user.username}
+            placeholder='User name'
             mode='outlined'
             underlineColorAndroid='transparent'
             left={<TextInput.Icon name="account" />}
-            onChangeText={(text) => setUserName(text)} />
+            onChangeText={(text) => setUserName({username: text, password: user.password})} />
           <HelperText type='error' visible={hasErrors()}>
             Username is empty !
           </HelperText>
@@ -122,10 +122,13 @@ function Signup({ navigation }) {
           style={styles.input}
           mode='outlined'
           placeholder='Password'
+          value={user.password}
           secureTextEntry={isSelected}
           underlineColorAndroid='transparent'
+          onChangeText={(text) =>setUserName({username: user.username, password: text})}
           left={<TextInput.Icon name="lock" />} 
           right={<TextInput.Icon name="eye" onPress={() => setSelection(!isSelected)}/>}/>
+          
         <View style={styles.btnSignup} >
           <TouchableOpacity onPress={checkSubmit} >
             <Text style={{ color: 'white', fontSize: 19 }}>Sign up</Text>
