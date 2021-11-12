@@ -15,7 +15,11 @@ import { HelperText, TextInput, Paragraph, Dialog, Portal, Provider, Button } fr
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-date-picker'
+import NotificationContext from './NotificationContext';
 function CreateTaskScreen({ route, navigation }) {
+
+    const count = React.useContext(NotificationContext).length;
+    //console.log(count);
     const [newTask, setNewTask] = useState({
         id: 0,
         title: '',
@@ -23,18 +27,27 @@ function CreateTaskScreen({ route, navigation }) {
         begin: '',
     });
 
+    
     const [date, setDate] = useState(new Date())
     const [open, setOpen] = useState(false)
-    const [dataLength, setDataLength] = useState()
+    const [dataLength, setDataLength] = useState(count)
     const [isError, setError] = useState({
         errorName: false,
         errorContent: false,
         errorTime: true,
     })
+    // useEffect(() => {
+    //     if (route.params?.dataLength) {
+    //         const DATA = route.params.dataLength;
+    //         setDataLength(DATA)
+    //         console.log(dataLength)
+    //     }
+
+    // }, [route.params?.dataLength]);
+
     useEffect(() => {
-        const DATA = route.params.data;
-        setDataLength(DATA)
-    }, []);
+        dataLength && console.log('dataLength',dataLength);
+    }, [dataLength]);
     const hasErrorName = (value) => {
         setError({
             errorName: (value.length < 1 ? true : false),
@@ -54,12 +67,12 @@ function CreateTaskScreen({ route, navigation }) {
         return value.length < 1;
     };
     const onPressCreate = () => {
-
+        console.log(newTask)
         if (isError.errorTime == true) {
             setError({ errorName: isError.errorName, errorContent: isError.errorContent, errorTime: false })
         }
         else {
-            navigation.navigate('Home', { data: newTask })
+            navigation.navigate('Home', { screen: 'Home', data: newTask })
         }
     }
     return (

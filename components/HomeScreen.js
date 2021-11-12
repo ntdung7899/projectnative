@@ -16,48 +16,30 @@ import { HelperText, TextInput } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-date-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CreateTaskScreen from './CreateTaskScreen';
+import LoginScreen from './LoginScreen';
+import NotificationContext from './NotificationContext';
+
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
 function HomeScreen({ navigation, route }) {
-    
+    const Tab = createBottomTabNavigator();
+    const count = React.useContext(NotificationContext);
+
     // storage value
-    const setStorageValue = async (value) => {
+    const setStorageValue = async (key,value) => {
         try {
             const jsonValue = JSON.stringify(value)
-            await AsyncStorage.setItem('@data', jsonValue)
+
+            await AsyncStorage.setItem(key, jsonValue)
+            console.log('save success')
         } catch (e) {
             // save error
-            console.log('cant save value: '+ e)
+            console.log('cant save value: ' + e)
         }
-
-        console.log('save done')
+        //console.log('save done')
     }
     // get value storage
-    const getStorageValue = async () => {
-        try {
-            const jsonValue = await AsyncStorage.getItem('@data')
-            const parseValue = eval('(' + jsonValue + ')');
-            var ids = new Set(parseValue.map(d => d.id));
-            var merged = [...parseValue, ...fake.filter(d => !ids.has(d.id))];
-             setData(merged);
-            // return jsonValue != null ? JSON.parse(jsonValue) : null
-        } catch (e) {
-            console.log('cant get value: ')
-        }
-
-    }
-    const fake = [
-        {
-            id: 1,
-            title: 'Tập thể dục',
-            content: 'Gập bụng 1000 cái, đu xà 1000 cái',
-            begin: 'March 21, 2012'
-        },
-        {
-            id: 2,
-            title: 'Shopping',
-            content: 'Dắt người yêu đi shopping',
-            begin: '30/11/2021'
-        },
-    ]
     const DATA = [
         {
             id: 1,
@@ -116,80 +98,116 @@ function HomeScreen({ navigation, route }) {
 
 
     ]
-    const [data, setData] = useState(DATA);
+
+    const [data, setData] = useState(count);
     const [isRender, setRender] = useState(false);
     const [isModelVisible, setModelVisible] = useState(false);
     const [inputText, setInputText] = useState({
         id: 0,
         title: '',
-        content: 'acd',
+        content: '',
         begin: '',
     });
-    const [editText, setEditText] = useState();
 
+
+    const [editText, setEditText] = useState();
     const [date, setDate] = useState(new Date())
     const [open, setOpen] = useState(false)
+    const [completeData, setCompleteData] = useState([{}]);
+    useEffect(() => {
+        console.log('first load data route')
+        setData(count)
+    }, [])
 
     useEffect(() => {
         if (route.params?.data) {
-            const receiveData = route.params.data;
-            DATA.push(receiveData);
-            setData(DATA);
-            setRender(true);
-            // console.log(DATA);
-
+            const dataFromRoute = route.params?.data;
+            console.log('dataFromRoute', dataFromRoute);
+            setData((prev) => [...prev, dataFromRoute])
         }
-    }, [route.params?.data]);
+    }, [route.params?.dataLength]);
+    //storage value when it update
     useEffect(() => {
-        LogBox.ignoreLogs(['Animated: `useNativeDriver`']);
-         getStorageValue()
-        
-         
-        
-    }, [])
-
-    // storage value when it update
-    useEffect(() => {
-        setStorageValue(data)
+        data && console.log('dataLoad', data)
+        setRender(true);
     }, [data])
+
+    useEffect(() => {
+        completeData && console.log('complete:', completeData)
+        setRender(true);
+    }, [completeData])
+
     const onPressDetail = (item) => {
         navigation.navigate('Details', { data: item });
     }
+    const onPressCompleteItem = (value) => {
+
+        setCompleteData((prev) => [...prev, value])
+        const newData = data.filter(item => item.id !== value.id)
+        setData(newData);
+        setStorageValue('@completeData',completeData);
+        setRender(true);
+    }
+
+
     const renderItem = ({ item, index }) => (
-        <View style={styles.lineItem}>
-            <View style={styles.leftItem}>
-                <TouchableOpacity onPress={() => onPressDetail(item)}>
-                    <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>{item.title}</Text>
-                    <Text style={{ color: 'black' }}>{item.content}</Text>
-                    <View style={{ marginTop: 10, flex: 1 }}>
-                        <View style={{ justifyContent: 'center', alignContent: 'center', }}>
-                            <Text style={styles.timeText}>{item.begin}</Text>
+        <View style={styles.container}>
+            <View style={{
+                marginTop: 10,
+                padding: 10,
+                borderColor: 'white',
+                marginBottom: 10,
+                flexDirection: 'row',
+                borderRadius: 10,
+                backgroundColor: index % 2 == 0 ? 'rgb(245, 213, 207)' : 'rgb(207, 236, 255)',
+                width: '95%',
+                height: 200
+            }}>
+                <View style={styles.leftItem}>
+                    <TouchableOpacity onPress={() => onPressDetail(item)}>
+                        <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20, paddingTop: 20 }}>{item.title}</Text>
+                        <Text style={{ color: 'black', paddingTop: 20, }}>{item.content}</Text>
+                        <View style={{ marginTop: 10, flex: 1, paddingTop: 30 }}>
+                            <View style={{ justifyContent: 'center', alignContent: 'center', }}>
+
+                                <Text style={styles.timeText}><Icon name="calendar-times-o" /> {item.begin}</Text>
+                            </View>
                         </View>
-                    </View>
-                </TouchableOpacity>
+                    </TouchableOpacity>
 
+
+                </View>
+                <View style={styles.rightItem}>
+                    <TouchableOpacity style={{ marginRight: 10 }} onPress={() => onPressEditItem(item)}>
+                        <Image source={{ uri: 'https://cdn4.vectorstock.com/i/1000x1000/09/73/edit-icon-vector-22390973.jpg' }}
+                            style={{
+                                height: 30,
+                                width: 30,
+                                paddingTop: 20
+                            }} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ marginRight: 10, }} onPress={() => onPressCompleteItem(item)}>
+                        <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQCKgcedvbY_2c4E2T-_B1FUUhZbnId3Pgsw&usqp=CAU' }}
+                            style={{
+                                height: 30,
+                                width: 30,
+                                paddingTop: 20,
+                            }} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => onPressDeleteItem(item,'@data')}>
+                        <Image source={{ uri: 'https://previews.123rf.com/images/vectorstockcompany/vectorstockcompany1808/vectorstockcompany180810079/107109630-delete-button-icon-vector-isolated-on-white-background-for-your-web-and-mobile-app-design-delete-but.jpg' }}
+                            style={{
+                                height: 30,
+                                width: 30,
+                                paddingTop: 20
+                            }} />
+                    </TouchableOpacity>
+
+                </View>
 
             </View>
-            <View style={styles.rightItem}>
-                <TouchableOpacity style={{ marginRight: 10 }} onPress={() => onPressEditItem(item)}>
-                    <Image source={{ uri: 'https://cdn4.vectorstock.com/i/1000x1000/09/73/edit-icon-vector-22390973.jpg' }}
-                        style={{
-                            height: 30,
-                            width: 30,
-                            paddingTop: 20
-                        }} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => onPressDeleteItem(item)}>
-                    <Image source={{ uri: 'https://previews.123rf.com/images/vectorstockcompany/vectorstockcompany1808/vectorstockcompany180810079/107109630-delete-button-icon-vector-isolated-on-white-background-for-your-web-and-mobile-app-design-delete-but.jpg' }}
-                        style={{
-                            height: 30,
-                            width: 30,
-                            paddingTop: 20
-                        }} />
-                </TouchableOpacity>
-            </View>
-
         </View>
+
 
     );
 
@@ -202,7 +220,6 @@ function HomeScreen({ navigation, route }) {
 
     };
     const handleSaveEditItem = (editText) => {
-
         const newData = data.map(item => {
             if (item.id == editText) {
                 item.title = inputText.title;
@@ -221,21 +238,22 @@ function HomeScreen({ navigation, route }) {
         handleSaveEditItem(editText);
         setModelVisible(false);
     }
-    const onPressDeleteItem = (deleItem) => {
+    const onPressDeleteItem = (deleItem,key) => {
         const newData = data.filter(item => item.id !== deleItem.id)
         setData(newData);
+        setStorageValue(key,data);
         setRender(true);
-        console.log(data)
+        //console.log(data)
     }
     const onPressAddItem = () => {
-        navigation.navigate('CreateTask', { data: data.length });
+        navigation.navigate('CreateTask', { screen: 'CreateTask', params: { data: data.length } });
     }
     return (
         <SafeAreaView style={styles.container}>
-            <View >
+            <View style={styles.containerContent}>
                 <FlatList
                     data={data}
-                    renderItem={(item) => renderItem(item)}
+                    renderItem={(item, index) => renderItem(item, index)}
                     keyExtractor={item => item.id}
                     extraData={isRender}
                 />
@@ -304,11 +322,7 @@ function HomeScreen({ navigation, route }) {
                 </Modal>
 
             </View>
-            <View style={styles.containerFloatingButton}>
-                <TouchableOpacity onPress={() => onPressAddItem()}>
-                    <Icon name="plus" size={22} color="blue" light />
-                </TouchableOpacity>
-            </View>
+
         </SafeAreaView>
 
     );
@@ -317,20 +331,24 @@ function HomeScreen({ navigation, route }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
+    containerContent: {
+
+    },
+
     leftItem: {
         flexDirection: 'column'
     },
     lineItem: {
-        padding: 10,
-        borderBottomWidth: 2,
-        marginBottom: 10,
-        flexDirection: 'row',
 
     },
     rightItem: {
         marginLeft: 'auto',
         flexDirection: 'row',
+
+        paddingTop: 20
     },
     containerFloatingButton: {
         position: 'absolute',
@@ -375,6 +393,7 @@ const styles = StyleSheet.create({
         backgroundColor: null,
 
     },
+
     timeText: {
         color: 'black',
         borderWidth: 1,
