@@ -114,14 +114,12 @@ const App = ({ navigation, route }) => {
     
     return (
         <NotificationContext.Provider value={data}>
-            <NavigationContainer>
                 <Tab.Navigator screenOptions={screenOptions}>
                     <Tab.Screen name='Home' color='red' component={HomeScreen} initialParams={{ dataItem: data }} />
                     <Tab.Screen name='CreateTask' color='red' component={CreateTaskScreen} initialParams={{ data: data }} />
                     <Tab.Screen name='Details' color='red' component={DetailsScreen} />
                     <Tab.Screen name='Complete' color='red' component={CompleteScreen}/>
                 </Tab.Navigator>
-            </NavigationContainer>
         </NotificationContext.Provider>
 
 

@@ -17,6 +17,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-date-picker'
 import NotificationContext from './NotificationContext';
 import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 function CreateTaskScreen({ route, navigation }) {
 
     const count = React.useContext(NotificationContext);
@@ -28,8 +29,6 @@ function CreateTaskScreen({ route, navigation }) {
     }
     //console.log(count);
     const [newTask, setNewTask] = useState(defaultState)
-
-    
     const [date, setDate] = useState(new Date())
     const [open, setOpen] = useState(false)
     const [dataLength, setDataLength] = useState()
@@ -38,18 +37,17 @@ function CreateTaskScreen({ route, navigation }) {
         errorContent: false,
         errorTime: false,
     })
-    useEffect(() => {
-        count && console.log('count',count)
-        getLength(count)
-        // console.log('result', result);
-    },[count])
+    // useEffect(() => {
+    //     count && console.log('count',count)
+    //     getLength(count)
+    // },[count])
     useEffect(() => {
         dataLength && console.log('dataLength',dataLength);
     }, [dataLength]);
 
     useFocusEffect(
         React.useCallback(() => {
-        getLength(count)
+        getStorageValue()
         }, [])
      );
     const hasErrorName = (value) => {
@@ -81,7 +79,17 @@ function CreateTaskScreen({ route, navigation }) {
         const lastObj = value.slice(-1);
         let result = lastObj.map(a => a.id)
         setDataLength(Number(result))
+        console.log(Number(result))
     }
+    async function getStorageValue() {
+        try {
+          const item = await AsyncStorage.getItem('@data');
+          const value = item ? JSON.parse(item) : defaultState;
+          getLength(value);
+        } catch (e) {
+          console.log('cant get value complete: ' + e)
+        }
+      }
     return (
         <SafeAreaView>
             <View style={styles.container}>

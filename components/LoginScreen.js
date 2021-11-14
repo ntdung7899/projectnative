@@ -35,21 +35,21 @@ function Login({ navigation, route }) {
     navigation.navigate('Signup')
   }
   const checkLogin = () => {
-    // if(user.username.length == 0){
-    //   Alert.alert('Vui lòng nhập user name và password')
-    //   return;
-    // }
-    // console.log(checkUser)
-    // console.log(user)
-    // if(user.username === checkUser.username && user.password === checkUser.password){
-      navigation.navigate('Home', {screen: 'Home'});
-    // }
-    // else{
-      
-    //   Alert.alert('Tên tài khoản hoặc mật khẩu không chính xác!')
-    // }
+    if (user.username.length == 0) {
+      Alert.alert('Vui lòng nhập user name và password')
+      return;
+    }
+    console.log(checkUser)
+    console.log(user)
+    if (user.username === checkUser.username && user.password === checkUser.password) {
+      navigation.navigate('App');
+    }
+    else {
 
-    
+      Alert.alert('Tên tài khoản hoặc mật khẩu không chính xác!')
+    }
+
+
   }
   return (
     <SafeAreaView>
@@ -62,7 +62,7 @@ function Login({ navigation, route }) {
             style={styles.input}
             value={user.username}
             placeholder='Username'
-            onChangeText = { (text) => setUser({username: text, password: user.password})}
+            onChangeText={(text) => setUser({ username: text, password: user.password })}
             underlineColorAndroid='transparent'
             left={<TextInput.Icon name="account" />} />
         </View>
@@ -71,7 +71,7 @@ function Login({ navigation, route }) {
             style={styles.input}
             placeholder='Password'
             value={user.password}
-            onChangeText = { (text) => setUser({username: user.username, password: text})}
+            onChangeText={(text) => setUser({ username: user.username, password: text })}
             underlineColorAndroid='transparent'
             secureTextEntry={isSelected}
             left={<TextInput.Icon name="lock" />}
@@ -81,7 +81,7 @@ function Login({ navigation, route }) {
           <Button
             title="Login"
             color="#FF3D00"
-            onPress = {() => checkLogin()}
+            onPress={() => checkLogin()}
           />
         </View>
 
