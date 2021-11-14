@@ -18,7 +18,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import NotificationContext from './components/NotificationContext'
+import NotificationContext from './components/NotificationContext';
+
+import { useFocusEffect } from '@react-navigation/native';
+
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 LogBox.ignoreLogs([
@@ -84,9 +88,8 @@ const App = ({ navigation, route }) => {
 
 
     ]
-    const defaultInitialState = [{ id: 1, title: 'Bạn chưa hoàn thành công việc', content: '-_- ', begin: '', }]
+    
     const [data, setData] = useState()
-    const [completeData, setCompleteData] = useState()
     async function getStorageValue() {
         try {
             const item = await AsyncStorage.getItem('@data');
@@ -97,19 +100,9 @@ const App = ({ navigation, route }) => {
             console.log('cant get value in app.js: ' + e)
         }
     }
-    async function getStorageCompleteValue() {
-        try {
-            const item = await AsyncStorage.getItem('@completeData');
-            const value = item ? JSON.parse(item) : defaultInitialState;
-            //console.log(value);
-            setCompleteData(value);
-        } catch (e) {
-            console.log('cant get value in app.js: ' + e)
-        }
-    }
+    
     useEffect(() => {
         getStorageValue();
-        getStorageCompleteValue();
     }, [])
     
     useEffect(() => {
@@ -118,13 +111,7 @@ const App = ({ navigation, route }) => {
          }
         
     }, [data]);
-    useEffect(() => {
-        if(completeData){
-            completeData && console.log('CompleteDataInAppJs', completeData);
-        }
-       
-   }, [completeData]);
-
+    
     return (
         <NotificationContext.Provider value={data}>
             <NavigationContainer>
@@ -132,7 +119,7 @@ const App = ({ navigation, route }) => {
                     <Tab.Screen name='Home' color='red' component={HomeScreen} initialParams={{ dataItem: data }} />
                     <Tab.Screen name='CreateTask' color='red' component={CreateTaskScreen} initialParams={{ data: data }} />
                     <Tab.Screen name='Details' color='red' component={DetailsScreen} />
-                    <Tab.Screen name='Complete' color='red' component={CompleteScreen}  />
+                    <Tab.Screen name='Complete' color='red' component={CompleteScreen}/>
                 </Tab.Navigator>
             </NavigationContainer>
         </NotificationContext.Provider>

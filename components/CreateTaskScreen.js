@@ -16,6 +16,7 @@ import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-date-picker'
 import NotificationContext from './NotificationContext';
+import { useFocusEffect } from '@react-navigation/native';
 function CreateTaskScreen({ route, navigation }) {
 
     const count = React.useContext(NotificationContext);
@@ -39,17 +40,18 @@ function CreateTaskScreen({ route, navigation }) {
     })
     useEffect(() => {
         count && console.log('count',count)
-        const lastObj = count.slice(-1);
-        let result = lastObj.map(a => a.id)
-        setDataLength(Number(result))
+        getLength(count)
         // console.log('result', result);
     },[count])
     useEffect(() => {
         dataLength && console.log('dataLength',dataLength);
-        
     }, [dataLength]);
 
-
+    useFocusEffect(
+        React.useCallback(() => {
+        getLength(count)
+        }, [])
+     );
     const hasErrorName = (value) => {
         setError({
             errorName: (value.length < 1 ? true : false),
@@ -74,6 +76,11 @@ function CreateTaskScreen({ route, navigation }) {
             setError({ errorName: false, errorContent: false, errorTime: false })
             navigation.navigate('Home', { screen: 'Home', data: newTask })
         }
+    }
+    const getLength = (value) => {
+        const lastObj = value.slice(-1);
+        let result = lastObj.map(a => a.id)
+        setDataLength(Number(result))
     }
     return (
         <SafeAreaView>

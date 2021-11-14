@@ -25,7 +25,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 function HomeScreen({ navigation, route }) {
     const Tab = createBottomTabNavigator();
     const dataFromContext = React.useContext(NotificationContext)
-
     // storage value
     const setStorageValue = async (key, value) => {
         try {

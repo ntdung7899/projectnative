@@ -14,8 +14,9 @@ import {
 } from 'react-native';
 import { HelperText, TextInput } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import DatePicker from 'react-native-date-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { useFocusEffect } from '@react-navigation/native';
 function CompleteTask({ navigation, route }) {
   const defaultInitialState = { id: 1, title: 'Bạn chưa hoàn thành công việc', content: '-_- ', begin: '', }
   const [completeData, setCompleteData] = useState();
@@ -31,17 +32,18 @@ function CompleteTask({ navigation, route }) {
       console.log('cant get value complete: ' + e)
     }
   }
-  
-  useEffect(() => {
-    console.log('loading complete data')
-    setRender(true)
-  },[AsyncStorage.getItem('@completeData')]) 
 
+ 
   useEffect(() => {
     getStorageValue();
     setRender(true)
   },[])
 
+  useFocusEffect(
+    React.useCallback(() => {
+      getStorageValue()
+    }, [])
+ );
 
   const deleteIndex = () => {
     if(completeData.length > 2){
@@ -108,7 +110,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   containerContent: {
-
   },
   leftItem: {
     flexDirection: 'column'
