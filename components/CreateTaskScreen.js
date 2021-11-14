@@ -18,36 +18,38 @@ import DatePicker from 'react-native-date-picker'
 import NotificationContext from './NotificationContext';
 function CreateTaskScreen({ route, navigation }) {
 
-    const count = React.useContext(NotificationContext).length;
-    //console.log(count);
-    const [newTask, setNewTask] = useState({
+    const count = React.useContext(NotificationContext);
+    const defaultState = {
         id: 0,
         title: '',
         content: '',
         begin: '',
-    });
+    }
+    //console.log(count);
+    const [newTask, setNewTask] = useState(defaultState)
 
     
     const [date, setDate] = useState(new Date())
     const [open, setOpen] = useState(false)
-    const [dataLength, setDataLength] = useState(count)
+    const [dataLength, setDataLength] = useState()
     const [isError, setError] = useState({
         errorName: false,
         errorContent: false,
-        errorTime: true,
+        errorTime: false,
     })
-    // useEffect(() => {
-    //     if (route.params?.dataLength) {
-    //         const DATA = route.params.dataLength;
-    //         setDataLength(DATA)
-    //         console.log(dataLength)
-    //     }
-
-    // }, [route.params?.dataLength]);
-
+    useEffect(() => {
+        count && console.log('count',count)
+        const lastObj = count.slice(-1);
+        let result = lastObj.map(a => a.id)
+        setDataLength(Number(result))
+        // console.log('result', result);
+    },[count])
     useEffect(() => {
         dataLength && console.log('dataLength',dataLength);
+        
     }, [dataLength]);
+
+
     const hasErrorName = (value) => {
         setError({
             errorName: (value.length < 1 ? true : false),
@@ -62,16 +64,14 @@ function CreateTaskScreen({ route, navigation }) {
             errorTime: isError.errorTime
         })
     };
-    const hasErrorTime = (value) => {
-
-        return value.length < 1;
-    };
     const onPressCreate = () => {
         console.log(newTask)
-        if (isError.errorTime == true) {
-            setError({ errorName: isError.errorName, errorContent: isError.errorContent, errorTime: false })
-        }
+        if(newTask.title === '') setError({ errorName: true, errorContent: isError.errorContent, errorTime: isError.errorTime })
+        if(newTask.content === '') setError({ errorName: isError.errorName, errorContent: true, errorTime: isError.errorTime })
+        if(newTask.begin === '') setError({ errorName: isError.errorName, errorContent: isError.errorContent, errorTime: true })
         else {
+            setNewTask(defaultState)
+            setError({ errorName: false, errorContent: false, errorTime: false })
             navigation.navigate('Home', { screen: 'Home', data: newTask })
         }
     }
@@ -102,7 +102,7 @@ function CreateTaskScreen({ route, navigation }) {
                             value={newTask.content}
                             mode='flat'
                             underlineColorAndroid='transparent'
-                            onChangeText={(text) => { setNewTask({ id: dataLength + 1, title: newTask.title, content: text, newTask: newTask.begin }); hasErrorContent(text); console.log(isError) }}
+                            onChangeText={(text) => { setNewTask({ id: dataLength + 1, title: newTask.title, content: text, newTask: newTask.begin }); hasErrorContent(text);}}
                             maxLength={200}
                             multiline={false}
                             placeholder="Enter description" />
@@ -125,7 +125,11 @@ function CreateTaskScreen({ route, navigation }) {
                                 setOpen(false)
                                 setDate(date)
                                 setNewTask({ id: dataLength + 1, title: newTask.title, content: newTask.content, begin: date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear() })
-                                console.log(date)
+                                setError({
+                                    errorName: isError.errorName,
+                                    errorContent: isError.errorName,
+                                    errorTime: false,
+                                })
                             }}
                             onCancel={() => {
                                 setOpen(false)

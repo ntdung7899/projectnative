@@ -24,20 +24,30 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 function HomeScreen({ navigation, route }) {
     const Tab = createBottomTabNavigator();
-    const count = React.useContext(NotificationContext);
+    const dataFromContext = React.useContext(NotificationContext)
 
     // storage value
-    const setStorageValue = async (key,value) => {
+    const setStorageValue = async (key, value) => {
         try {
             const jsonValue = JSON.stringify(value)
 
             await AsyncStorage.setItem(key, jsonValue)
-            console.log('save success')
+            console.log('save success',jsonValue)
         } catch (e) {
             // save error
             console.log('cant save value: ' + e)
         }
-        //console.log('save done')
+    }
+    const setStorageCompleteValue = async (value) => {
+        try {
+            const jsonValue = JSON.stringify(value)
+
+            await AsyncStorage.setItem('@completeData', jsonValue)
+            console.log('save complete data',jsonValue)
+        } catch (e) {
+            // save error
+            console.log('cant save value: ' + e)
+        }
     }
     // get value storage
     const DATA = [
@@ -99,7 +109,7 @@ function HomeScreen({ navigation, route }) {
 
     ]
 
-    const [data, setData] = useState(count);
+    const [data, setData] = useState();
     const [isRender, setRender] = useState(false);
     const [isModelVisible, setModelVisible] = useState(false);
     const [inputText, setInputText] = useState({
@@ -113,28 +123,43 @@ function HomeScreen({ navigation, route }) {
     const [editText, setEditText] = useState();
     const [date, setDate] = useState(new Date())
     const [open, setOpen] = useState(false)
-    const [completeData, setCompleteData] = useState([{}]);
+    const [completeData, setCompleteData] = useState([]);
     useEffect(() => {
         console.log('first load data route')
-        setData(count)
+        setRender(true);
     }, [])
+
 
     useEffect(() => {
         if (route.params?.data) {
             const dataFromRoute = route.params?.data;
             console.log('dataFromRoute', dataFromRoute);
-            setData((prev) => [...prev, dataFromRoute])
+            setData((prev) => [...prev, dataFromRoute]);
+
         }
-    }, [route.params?.dataLength]);
+    }, [route.params?.data]);
     //storage value when it update
+
     useEffect(() => {
-        data && console.log('dataLoad', data)
-        setRender(true);
+        if(data){
+            data && console.log('dataLoad', data)
+            setRender(true);
+            setStorageValue('@data',data)
+        }
+        
     }, [data])
+    useEffect(() => {
+        if(dataFromContext){
+            dataFromContext&& console.log('dataFromContext', dataFromContext)
+            setData(dataFromContext)
+            setRender(true);
+        }
+        
+    }, [dataFromContext])
 
     useEffect(() => {
         completeData && console.log('complete:', completeData)
-        setRender(true);
+        setStorageCompleteValue(completeData)
     }, [completeData])
 
     const onPressDetail = (item) => {
@@ -145,7 +170,6 @@ function HomeScreen({ navigation, route }) {
         setCompleteData((prev) => [...prev, value])
         const newData = data.filter(item => item.id !== value.id)
         setData(newData);
-        setStorageValue('@completeData',completeData);
         setRender(true);
     }
 
@@ -194,7 +218,7 @@ function HomeScreen({ navigation, route }) {
                                 paddingTop: 20,
                             }} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => onPressDeleteItem(item,'@data')}>
+                    <TouchableOpacity onPress={() => onPressDeleteItem(item, '@data')}>
                         <Image source={{ uri: 'https://previews.123rf.com/images/vectorstockcompany/vectorstockcompany1808/vectorstockcompany180810079/107109630-delete-button-icon-vector-isolated-on-white-background-for-your-web-and-mobile-app-design-delete-but.jpg' }}
                             style={{
                                 height: 30,
@@ -238,16 +262,14 @@ function HomeScreen({ navigation, route }) {
         handleSaveEditItem(editText);
         setModelVisible(false);
     }
-    const onPressDeleteItem = (deleItem,key) => {
+    const onPressDeleteItem = (deleItem, key) => {
         const newData = data.filter(item => item.id !== deleItem.id)
         setData(newData);
-        setStorageValue(key,data);
+        setStorageValue(key, newData);
         setRender(true);
         //console.log(data)
     }
-    const onPressAddItem = () => {
-        navigation.navigate('CreateTask', { screen: 'CreateTask', params: { data: data.length } });
-    }
+    
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.containerContent}>

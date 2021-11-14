@@ -84,8 +84,9 @@ const App = ({ navigation, route }) => {
 
 
     ]
-
+    const defaultInitialState = [{ id: 1, title: 'Bạn chưa hoàn thành công việc', content: '-_- ', begin: '', }]
     const [data, setData] = useState()
+    const [completeData, setCompleteData] = useState()
     async function getStorageValue() {
         try {
             const item = await AsyncStorage.getItem('@data');
@@ -96,13 +97,33 @@ const App = ({ navigation, route }) => {
             console.log('cant get value in app.js: ' + e)
         }
     }
+    async function getStorageCompleteValue() {
+        try {
+            const item = await AsyncStorage.getItem('@completeData');
+            const value = item ? JSON.parse(item) : defaultInitialState;
+            //console.log(value);
+            setCompleteData(value);
+        } catch (e) {
+            console.log('cant get value in app.js: ' + e)
+        }
+    }
     useEffect(() => {
         getStorageValue();
+        getStorageCompleteValue();
     }, [])
     
     useEffect(() => {
-         data && console.log('dataApp', data);
+         if(data){
+            data && console.log('dataInAppJs', data);
+         }
+        
     }, [data]);
+    useEffect(() => {
+        if(completeData){
+            completeData && console.log('CompleteDataInAppJs', completeData);
+        }
+       
+   }, [completeData]);
 
     return (
         <NotificationContext.Provider value={data}>
@@ -124,7 +145,9 @@ const screenOptions = ({ route }) => ({
         const icons = {
             Home: 'home',
             CreateTask: 'plus',
-            Details: 'details'
+            Details: 'details',
+            Complete: 'content-save'
+
         };
 
         return (

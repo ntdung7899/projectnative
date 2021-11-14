@@ -17,7 +17,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-date-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 function CompleteTask({ navigation, route }) {
-  const defaultInitialState = [{ id: 0, title: 'Bạn chưa hoàn thành công việc', content: '-_- ', begin: '', }]
+  const defaultInitialState = { id: 1, title: 'Bạn chưa hoàn thành công việc', content: '-_- ', begin: '', }
   const [completeData, setCompleteData] = useState();
   const [isRender, setRender] = useState(false);
   async function getStorageValue() {
@@ -26,30 +26,36 @@ function CompleteTask({ navigation, route }) {
       const value = item ? JSON.parse(item) : defaultInitialState;
       //console.log('value get',value);
       setCompleteData(value);
+      setRender(true);
     } catch (e) {
       console.log('cant get value complete: ' + e)
     }
   }
+  
+  useEffect(() => {
+    console.log('loading complete data')
+    setRender(true)
+  },[AsyncStorage.getItem('@completeData')]) 
+
   useEffect(() => {
     getStorageValue();
-
-  }, [])
+    setRender(true)
+  },[])
 
 
   const deleteIndex = () => {
     if(completeData.length > 2){
       const newData = completeData.filter(item => item.id != 0)
-      // setCompleteData(newData)
+       setCompleteData(newData)
       console.log('newData:',newData)
     }
   };
   useEffect(() => {
     if(completeData){
       completeData && console.log('completeData', completeData);
-      deleteIndex();
+
       setRender(true);
     }
-    
   }, [completeData]);
   const renderItem = ({ item, index }) => (
     <View style={styles.container}>
