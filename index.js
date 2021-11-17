@@ -11,4 +11,5 @@ import LoginScreen from './components/LoginScreen'
 import SignupScreen from './components/SignupScreen'
 
 import LoginNavigator from './components/LoginNavigator'
+import CalendarScreen from './components/CalendarScreen'
 AppRegistry.registerComponent(appName, () => LoginNavigator);

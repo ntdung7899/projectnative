@@ -31,7 +31,7 @@ function HomeScreen({ navigation, route }) {
             const jsonValue = JSON.stringify(value)
 
             await AsyncStorage.setItem(key, jsonValue)
-            console.log('save success',jsonValue)
+            console.log('save success', jsonValue)
         } catch (e) {
             // save error
             console.log('cant save value: ' + e)
@@ -42,7 +42,7 @@ function HomeScreen({ navigation, route }) {
             const jsonValue = JSON.stringify(value)
 
             await AsyncStorage.setItem('@completeData', jsonValue)
-            console.log('save complete data',jsonValue)
+            console.log('save complete data', jsonValue)
         } catch (e) {
             // save error
             console.log('cant save value: ' + e)
@@ -123,6 +123,9 @@ function HomeScreen({ navigation, route }) {
     const [date, setDate] = useState(new Date())
     const [open, setOpen] = useState(false)
     const [completeData, setCompleteData] = useState([]);
+
+    const [isErrorTitle, setErrorTitle] = useState(false);
+    const [isErrorDes, setErrorDes] = useState(false);
     useEffect(() => {
         console.log('first load data route')
         setRender(true);
@@ -140,20 +143,20 @@ function HomeScreen({ navigation, route }) {
     //storage value when it update
 
     useEffect(() => {
-        if(data){
+        if (data) {
             data && console.log('dataLoad', data)
             setRender(true);
-            setStorageValue('@data',data)
+            setStorageValue('@data', data)
         }
-        
+
     }, [data])
     useEffect(() => {
-        if(dataFromContext){
-            dataFromContext&& console.log('dataFromContext', dataFromContext)
+        if (dataFromContext) {
+            dataFromContext && console.log('dataFromContext', dataFromContext)
             setData(dataFromContext)
             setRender(true);
         }
-        
+
     }, [dataFromContext])
 
     useEffect(() => {
@@ -172,7 +175,12 @@ function HomeScreen({ navigation, route }) {
         setRender(true);
     }
 
-
+    const validateTitle = (text) => {
+        return text.length < 1 ? setErrorTitle(true) : setErrorTitle(false)
+    }
+    const validateDes = (text) => {
+        return text.length < 1 ? setErrorDes(true) : setErrorDes(false)
+    }
     const renderItem = ({ item, index }) => (
         <View style={styles.container}>
             <View style={{
@@ -258,8 +266,17 @@ function HomeScreen({ navigation, route }) {
         setRender(true);
     }
     const onPressSaveEdit = () => {
-        handleSaveEditItem(editText);
-        setModelVisible(false);
+        if(inputText.title.length < 1){
+            setErrorTitle(true)
+        }
+        if(inputText.content.length < 1){
+            setErrorDes(true)
+        }
+        else{
+            handleSaveEditItem(editText);
+            setModelVisible(false);
+        }
+       
     }
     const onPressDeleteItem = (deleItem, key) => {
         const newData = data.filter(item => item.id !== deleItem.id)
@@ -268,7 +285,7 @@ function HomeScreen({ navigation, route }) {
         setRender(true);
         //console.log(data)
     }
-    
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.containerContent}>
@@ -291,10 +308,13 @@ function HomeScreen({ navigation, route }) {
                                     value={inputText.title}
                                     mode='outlined'
                                     underlineColorAndroid='transparent'
-                                    onChangeText={(text) => setInputText({ id: inputText.id, title: text, content: inputText.content, begin: inputText.begin })}
+                                    onChangeText={(text) => {setInputText({ id: inputText.id, title: text, content: inputText.content, begin: inputText.begin }); validateTitle(text)}}
                                     maxLength={200}
                                     multiline={false}
                                     placeholder="Enter work..." />
+                                <HelperText type='error' visible={isErrorTitle}>
+                                   Title is empty !
+                                </HelperText>
                             </View>
                             <View style={styles.inputView}>
                                 <TextInput
@@ -303,10 +323,13 @@ function HomeScreen({ navigation, route }) {
                                     value={inputText.content}
                                     mode='outlined'
                                     underlineColorAndroid='transparent'
-                                    onChangeText={(text) => setInputText({ id: inputText.id, title: inputText.title, content: text, begin: inputText.begin })}
+                                    onChangeText={(text) => {setInputText({ id: inputText.id, title: inputText.title, content: text, begin: inputText.begin }); validateDes(text)}}
                                     maxLength={200}
                                     multiline={false}
                                     placeholder="Enter work..." />
+                                <HelperText type='error' visible={isErrorDes}>
+                                   Description is empty !
+                                </HelperText>
                             </View>
                             <View>
                                 <View style={styles.viewTime}>
@@ -404,8 +427,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderRadius: 30,
         height: 50,
-        marginTop: 10
-
+        marginTop: 10,
+        marginBottom: 20
     },
     input: {
         width: 350,
@@ -435,7 +458,7 @@ const styles = StyleSheet.create({
         paddingLeft: 12,
         borderRadius: 20,
         marginTop: 20,
-        marginBottom: 20,
+        marginBottom: 10,
         paddingTop: 5,
         paddingLeft: 20,
     },
