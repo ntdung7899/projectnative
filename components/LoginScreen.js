@@ -65,7 +65,7 @@ function Login({ navigation, route }) {
             value={user.username}
             placeholder='Username'
             onChangeText={(text) => setUser({ username: text, password: user.password })}
-            underlineColorAndroid='transparent'
+            underlineColorAndroid="transparent"
             left={<TextInput.Icon name="account" />} />
         </View>
         <View style={styles.userStyle}>
@@ -74,7 +74,7 @@ function Login({ navigation, route }) {
             placeholder='Password'
             value={user.password}
             onChangeText={(text) => setUser({ username: user.username, password: text })}
-            underlineColorAndroid='transparent'
+            underlineColorAndroid="transparent"
             secureTextEntry={isSelected}
             left={<TextInput.Icon name="lock" />}
             right={<TextInput.Icon name="eye" onPress={() => setSelection(!isSelected)} />} />

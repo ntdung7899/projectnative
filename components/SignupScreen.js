@@ -20,20 +20,32 @@ function Signup({ navigation }) {
   const [numberKey, setNumberKey] = useState({ number: '' });
   const [emailKey, setEmailKey] = useState({ email: '' });
 
-  const [isErrorUser, setErrorUser] = useState(false)
-  const [isErrorEmail, setErrorEmail] = useState(false)
+  const [isErrorUser, setErrorUser] = useState( null)
+  const [isErrorEmail, setErrorEmail] = useState(null)
   const [typeErrorEmail, setTypeError] = useState('E-mail Address is required!')
-  const [isErrorPass, setErrorPass] = useState(false)
-  const [isErrorPhone, setErrorPhone] = useState(false)
+  const [isErrorPass, setErrorPass] = useState(null)
+  const [isErrorPhone, setErrorPhone] = useState(null)
 
   const [isSelected, setSelection] = useState(true);
 
+  // useEffect(() => {
+
+  //   isErrorPass && console.log('isErrorPass', isErrorPass)
+
+  // }, [isErrorPass])
+  // useEffect(() => {
+  //   isErrorPhone && console.log('isErrorPhone', isErrorPhone)
+
+  // }, [isErrorPhone])
+  // useEffect(() => {
+  //   isErrorUser && console.log('isErrorUser', isErrorUser)
+
+  // }, [isErrorUser])
   useEffect(() => {
-    console.log(isErrorPhone)
-    console.log(isErrorEmail)
-    console.log(isErrorPass)
-    console.log(isErrorPhone)
-  }, [isErrorPhone, isErrorPass, isErrorEmail, isErrorUser])
+    isErrorEmail && console.log('isErrorEmail', isErrorEmail)
+    
+  }, [isErrorEmail, isErrorUser, isErrorPhone, isErrorPass])
+  
   // check username
   const validateUserName = (text) => {
     return text.length < 1 ? setErrorUser(true) : setErrorUser(false)
@@ -65,21 +77,12 @@ function Signup({ navigation }) {
 
     }
     else {
-      setEmailKey({ email: value })
+      
       setErrorEmail(false);
     }
   }
   const validatePass = (text) => {
     return text.length < 1 ? setErrorPass(true) : setErrorPass(false)
-  }
-  const checkSubmitAll = () => {
-    if (isErrorUser || isErrorEmail || isErrorPass || isErrorPhone) {
-      return;
-    }
-    else {
-
-      navigation.navigate('Login', { userName: user });
-    }
   }
   // check null input
   const hasErrors = () => {
@@ -87,8 +90,10 @@ function Signup({ navigation }) {
   };
   const checkSubmit = () => {
     if (user.username.length < 1) {
+
       setErrorUser(true)
-      console.log('error username')
+      console.log("error user")
+
     }
     if (user.email.length < 1) {
       setErrorEmail(true)
@@ -99,15 +104,22 @@ function Signup({ navigation }) {
       setErrorPhone(true)
       console.log('error number phone')
     }
-
     if (user.password.length < 1) {
       setErrorPass(true);
+      return;
+    }
+    if(user.password.length >= 1){
+      if(user.username.length < 1 || user.email.length < 1 || user.numberPhone.length < 1 || user.numberPhone.length > 10 || isNaN(user.numberPhone)) return;
+      else{
+        console.log('sign up success')
+        navigation.navigate('Login', { userName: user })
+      }
+    }
+    // if (!isErrorUser && !isErrorEmail && !isErrorPass && !isErrorPhone) {
       
-    }
-    if (!isErrorUser && !isErrorEmail && !isErrorPass && !isErrorPhone) {
-      console.log('sign up success')
-    }
+    // }
   }
+
   return (
     <View style={styles.container}>
       <View style={styles.containerTop}>
@@ -164,7 +176,7 @@ function Signup({ navigation }) {
           maxLength={16}
           secureTextEntry={isSelected}
           underlineColorAndroid='transparent'
-          onChangeText={(text) => {validatePass(text); setUserName({ username: user.username, password: text, numberPhone: user.numberPhone, email: user.email }) }}
+          onChangeText={(text) => { validatePass(text); setUserName({ username: user.username, password: text, numberPhone: user.numberPhone, email: user.email }) }}
           left={<TextInput.Icon name="lock" />}
           right={<TextInput.Icon name="eye" onPress={() => setSelection(!isSelected)} />} />
         <HelperText type='error' visible={isErrorPass}>
