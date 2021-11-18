@@ -53,7 +53,9 @@ function Login({ navigation, route }) {
   }
   return (
     <SafeAreaView>
+      <Text style={{ marginRight: 300 , marginTop: 5}}>version 0.1.1</Text>
       <View style={styles.container}>
+
         <Text style={styles.login}>
           Login
         </Text>

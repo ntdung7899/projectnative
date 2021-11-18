@@ -27,17 +27,24 @@ function Signup({ navigation }) {
   const [isErrorPhone, setErrorPhone] = useState(false)
 
   const [isSelected, setSelection] = useState(true);
+
+  useEffect(() => {
+    console.log(isErrorPhone)
+    console.log(isErrorEmail)
+    console.log(isErrorPass)
+    console.log(isErrorPhone)
+  }, [isErrorPhone, isErrorPass, isErrorEmail, isErrorUser])
   // check username
   const validateUserName = (text) => {
     return text.length < 1 ? setErrorUser(true) : setErrorUser(false)
   }
   //check phone
   const validatePhone = (value) => {
-   
+
     if (value.length < 1 || value.length >= 11 || isNaN(value)) {
       setErrorPhone(true)
     }
-    else{
+    else {
       setErrorPhone(false)
     }
   }
@@ -47,8 +54,15 @@ function Signup({ navigation }) {
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
     const res = reg.test(value)
     if (res == false || value.length < 1) {
-      setErrorEmail(true);
-      setTypeError('Please enter correct email')
+      if (value.length < 1) {
+        setErrorEmail(true);
+        setTypeError('Please enter your email')
+      }
+      else {
+        setErrorEmail(true);
+        setTypeError('Please enter correct email')
+      }
+
     }
     else {
       setEmailKey({ email: value })
@@ -58,34 +72,40 @@ function Signup({ navigation }) {
   const validatePass = (text) => {
     return text.length < 1 ? setErrorPass(true) : setErrorPass(false)
   }
+  const checkSubmitAll = () => {
+    if (isErrorUser || isErrorEmail || isErrorPass || isErrorPhone) {
+      return;
+    }
+    else {
+
+      navigation.navigate('Login', { userName: user });
+    }
+  }
   // check null input
   const hasErrors = () => {
     return user.username.length < 1;
   };
   const checkSubmit = () => {
     if (user.username.length < 1) {
-     setErrorUser(true)
-     
+      setErrorUser(true)
+      console.log('error username')
     }
-     if (user.email.length < 1) {
+    if (user.email.length < 1) {
       setErrorEmail(true)
       setTypeError('Please enter your email')
+      console.log('error email')
     }
-    if (user.numberPhone.length <1 || user.numberPhone.length > 10 || isNaN(user.numberPhone)) {
+    if (user.numberPhone.length < 1 || user.numberPhone.length > 10 || isNaN(user.numberPhone)) {
       setErrorPhone(true)
-
+      console.log('error number phone')
     }
 
     if (user.password.length < 1) {
       setErrorPass(true);
       
     }
-    if(isErrorUser == true || isErrorEmail == true || isErrorPass == true || isErrorPhone == true){
-      
-      return;
-    }
-    else {
-      navigation.navigate('Login', { userName: user });
+    if (!isErrorUser && !isErrorEmail && !isErrorPass && !isErrorPhone) {
+      console.log('sign up success')
     }
   }
   return (
@@ -116,9 +136,9 @@ function Signup({ navigation }) {
             value={user.email}
             underlineColorAndroid='transparent'
             left={<TextInput.Icon name="email" />}
-            onChangeText={(value) => {setUserName({ username: user.username, password: user.password, numberPhone: user.numberPhone, email: value }); validateEmail(value);}} />
+            onChangeText={(value) => { setUserName({ username: user.username, password: user.password, numberPhone: user.numberPhone, email: value }); validateEmail(value); }} />
           <HelperText type='error' visible={isErrorEmail} >
-           {typeErrorEmail}
+            {typeErrorEmail}
           </HelperText>
         </View>
         <View>
@@ -130,7 +150,7 @@ function Signup({ navigation }) {
             value={user.numberPhone}
             underlineColorAndroid='transparent'
             left={<TextInput.Icon name="phone" />}
-            onChangeText={(value) => {setUserName({ username: user.username, password: user.password, numberPhone: value, email: user.email }); validatePhone(value);}}
+            onChangeText={(value) => { setUserName({ username: user.username, password: user.password, numberPhone: value, email: user.email }); validatePhone(value); }}
           />
           <HelperText type='error' visible={isErrorPhone} >
             Contact Number should consist of 10 digits only !
@@ -144,15 +164,18 @@ function Signup({ navigation }) {
           maxLength={16}
           secureTextEntry={isSelected}
           underlineColorAndroid='transparent'
-          onChangeText={(text) => {setUserName({ username: user.username, password: text, numberPhone: user.numberPhone, email: user.email }); validatePass(text)}}
+          onChangeText={(text) => {validatePass(text); setUserName({ username: user.username, password: text, numberPhone: user.numberPhone, email: user.email }) }}
           left={<TextInput.Icon name="lock" />}
           right={<TextInput.Icon name="eye" onPress={() => setSelection(!isSelected)} />} />
         <HelperText type='error' visible={isErrorPass}>
           Password not null !
         </HelperText>
-        <View style={styles.btnSignup} >
+        <View  >
           <TouchableOpacity onPress={checkSubmit} >
-            <Text style={{ color: 'white', fontSize: 19 }}>Sign up</Text>
+            <View style={styles.btnSignup}>
+              <Text style={{ color: 'white', fontSize: 19 }}>Sign up</Text>
+            </View>
+
           </TouchableOpacity>
         </View>
       </View>
