@@ -21,7 +21,8 @@ function CompleteTask({ navigation, route }) {
   const defaultInitialState = { id: 1, title: 'Bạn chưa hoàn thành công việc', content: '-_- ', begin: '', }
   const [completeData, setCompleteData] = useState();
   const [isRender, setRender] = useState(false);
-  async function getStorageValue() {
+
+  async function getStorageCompleteValue() {
     try {
       const item = await AsyncStorage.getItem('@completeData');
       const value = item ? JSON.parse(item) : defaultInitialState;
@@ -32,33 +33,58 @@ function CompleteTask({ navigation, route }) {
       console.log('cant get value complete: ' + e)
     }
   }
+  const setStorageCompleteValue = async (value) => {
+    try {
+        const jsonValue = JSON.stringify(value)
+        await AsyncStorage.setItem('@completeData', jsonValue)
+        console.log('save complete data', jsonValue)
+    } catch (e) {
+        // save error
+        console.log('cant save value: ' + e)
+    }
+}
 
- 
   useEffect(() => {
-    getStorageValue();
+    getStorageCompleteValue();
     setRender(true)
-  },[])
+  }, [])
 
   useFocusEffect(
     React.useCallback(() => {
-      getStorageValue()
+      getStorageCompleteValue()
     }, [])
- );
+  );
 
-  const deleteIndex = () => {
-    if(completeData.length > 2){
-      const newData = completeData.filter(item => item.id != 0)
-       setCompleteData(newData)
-      console.log('newData:',newData)
-    }
-  };
   useEffect(() => {
-    if(completeData){
+    if (completeData) {
       completeData && console.log('completeData', completeData);
-
+      setStorageCompleteValue(completeData);
       setRender(true);
     }
   }, [completeData]);
+  const onPressBackItem = (value) => {
+    const newData = completeData.filter(item => item.id !== value.id)
+    
+    setStorageValue(value);
+    removeItem();
+    setCompleteData(newData);
+    setRender(true);
+  }
+  const removeItem = async () => {
+    await AsyncStorage.removeItem('@completeData')
+  }
+  const setStorageValue = async (value) => {
+    try {
+      const getData = await AsyncStorage.getItem('@data')
+      const convertData = JSON.parse(getData)
+      convertData.push(value)
+      await AsyncStorage.setItem('@data', JSON.stringify(convertData))
+      console.log('save success')
+    } catch (e) {
+        console.log('cant merge value: ' + e)
+    }
+}
+
   const renderItem = ({ item, index }) => (
     <View style={styles.container}>
       <View style={{
@@ -74,15 +100,24 @@ function CompleteTask({ navigation, route }) {
       }}>
         <View style={styles.leftItem}>
           <TouchableOpacity>
-
             <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20, paddingTop: 20 }}>{item.title}</Text>
             <Text style={{ color: 'black', paddingTop: 20, }}>{item.content}</Text>
             <View style={{ marginTop: 10, flex: 1, paddingTop: 30 }}>
               <View style={{ justifyContent: 'center', alignContent: 'center', }}>
-
                 <Text style={styles.timeText}><Icon name="calendar-times-o" /> {item.begin}</Text>
               </View>
             </View>
+          </TouchableOpacity>
+        </View>
+        <View>
+          <TouchableOpacity onPress={() => onPressBackItem(item)}>
+            <Image source={{ uri: 'https://w7.pngwing.com/pngs/1004/921/png-transparent-bachengzhen-%E5%A4%A7%E4%BC%97%E5%88%9B%E4%B8%9A%E3%80%81%E4%B8%87%E4%BC%97%E5%88%9B%E6%96%B0-innovation-entrepreneur-back-icon-angle-entrepreneurship-symbol.png' }}
+              style={{
+                height: 30,
+                width: 30,
+                paddingTop: 20,
+                backgroundColor: 'rgba(0,0,0,0.45)',
+              }} />
           </TouchableOpacity>
         </View>
       </View>

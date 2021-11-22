@@ -19,7 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import CreateTaskScreen from './CreateTaskScreen';
 import LoginScreen from './LoginScreen';
 import NotificationContext from './NotificationContext';
-
+import { useFocusEffect } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 function HomeScreen({ navigation, route }) {
@@ -29,7 +29,6 @@ function HomeScreen({ navigation, route }) {
     const setStorageValue = async (key, value) => {
         try {
             const jsonValue = JSON.stringify(value)
-
             await AsyncStorage.setItem(key, jsonValue)
             console.log('save success', jsonValue)
         } catch (e) {
@@ -40,7 +39,6 @@ function HomeScreen({ navigation, route }) {
     const setStorageCompleteValue = async (value) => {
         try {
             const jsonValue = JSON.stringify(value)
-
             await AsyncStorage.setItem('@completeData', jsonValue)
             console.log('save complete data', jsonValue)
         } catch (e) {
@@ -130,8 +128,12 @@ function HomeScreen({ navigation, route }) {
         console.log('first load data route')
         setRender(true);
     }, [])
-
-
+    useFocusEffect(
+        React.useCallback(() => {
+            getStorageValue()
+            getStorageCompleteValue()
+        }, [])
+    );
     useEffect(() => {
         if (route.params?.data) {
             const dataFromRoute = route.params?.data;
@@ -156,20 +158,41 @@ function HomeScreen({ navigation, route }) {
             setData(dataFromContext)
             setRender(true);
         }
-
     }, [dataFromContext])
 
     useEffect(() => {
         completeData && console.log('complete:', completeData)
         setStorageCompleteValue(completeData)
     }, [completeData])
-
+    async function getStorageValue() {
+        try {
+            const item = await AsyncStorage.getItem('@data');
+            const value = item ? JSON.parse(item) : defaultInitialState;
+            //console.log('value get',value);
+            setData(value);
+            setRender(true);
+        } catch (e) {
+            console.log('cant get value complete: ' + e)
+        }
+    }
+    async function getStorageCompleteValue() {
+        try {
+            const item = await AsyncStorage.getItem('@completeData');
+            const value = item ? JSON.parse(item) : defaultInitialState;
+            //console.log('value get',value);
+            setCompleteData(value);
+            setRender(true);
+        } catch (e) {
+            console.log('cant get value complete: ' + e)
+        }
+    }
     const onPressDetail = (item) => {
         navigation.navigate('Details', { data: item });
     }
     const onPressCompleteItem = (value) => {
 
         setCompleteData((prev) => [...prev, value])
+        
         const newData = data.filter(item => item.id !== value.id)
         setData(newData);
         setRender(true);
@@ -266,17 +289,17 @@ function HomeScreen({ navigation, route }) {
         setRender(true);
     }
     const onPressSaveEdit = () => {
-        if(inputText.title.length < 1){
+        if (inputText.title.length < 1) {
             setErrorTitle(true)
         }
-        if(inputText.content.length < 1){
+        if (inputText.content.length < 1) {
             setErrorDes(true)
         }
-        else{
+        else {
             handleSaveEditItem(editText);
             setModelVisible(false);
         }
-       
+
     }
     const onPressDeleteItem = (deleItem, key) => {
         const newData = data.filter(item => item.id !== deleItem.id)
@@ -308,12 +331,12 @@ function HomeScreen({ navigation, route }) {
                                     value={inputText.title}
                                     mode='outlined'
                                     underlineColorAndroid='transparent'
-                                    onChangeText={(text) => {setInputText({ id: inputText.id, title: text, content: inputText.content, begin: inputText.begin }); validateTitle(text)}}
+                                    onChangeText={(text) => { setInputText({ id: inputText.id, title: text, content: inputText.content, begin: inputText.begin }); validateTitle(text) }}
                                     maxLength={200}
                                     multiline={false}
                                     placeholder="Enter work..." />
                                 <HelperText type='error' visible={isErrorTitle}>
-                                   Title is empty !
+                                    Title is empty !
                                 </HelperText>
                             </View>
                             <View style={styles.inputView}>
@@ -323,12 +346,12 @@ function HomeScreen({ navigation, route }) {
                                     value={inputText.content}
                                     mode='outlined'
                                     underlineColorAndroid='transparent'
-                                    onChangeText={(text) => {setInputText({ id: inputText.id, title: inputText.title, content: text, begin: inputText.begin }); validateDes(text)}}
+                                    onChangeText={(text) => { setInputText({ id: inputText.id, title: inputText.title, content: text, begin: inputText.begin }); validateDes(text) }}
                                     maxLength={200}
                                     multiline={false}
                                     placeholder="Enter work..." />
                                 <HelperText type='error' visible={isErrorDes}>
-                                   Description is empty !
+                                    Description is empty !
                                 </HelperText>
                             </View>
                             <View>
