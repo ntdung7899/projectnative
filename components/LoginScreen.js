@@ -35,19 +35,19 @@ function Login({ navigation, route }) {
     navigation.navigate('Signup')
   }
   const checkLogin = () => {
-    // if (user.username.length == 0) {
-    //   Alert.alert('Vui lòng nhập user name và password')
-    //   return;
-    // }
-    // console.log(checkUser)
-    // console.log(user)
-    // if (user.username === checkUser.username && user.password === checkUser.password) {
+    if (user.username.length == 0) {
+      Alert.alert('Vui lòng nhập user name và password')
+      return;
+    }
+    console.log(checkUser)
+    console.log(user)
+    if (user.username === checkUser.username && user.password === checkUser.password) {
       navigation.navigate('App');
-    // }
-    // else {
+    }
+    else {
 
-    //   Alert.alert('Tên tài khoản hoặc mật khẩu không chính xác!')
-    // }
+      Alert.alert('Tên tài khoản hoặc mật khẩu không chính xác!')
+    }
 
 
   }
