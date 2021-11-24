@@ -10,6 +10,7 @@ import {
     SafeAreaView,
     Modal,
     LogBox,
+    Alert,
     Button,
 } from 'react-native';
 import { HelperText, TextInput } from 'react-native-paper';
@@ -24,87 +25,18 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 function HomeScreen({ navigation, route }) {
     const Tab = createBottomTabNavigator();
-    const dataFromContext = React.useContext(NotificationContext)
-    // storage value
-    const setStorageValue = async (key, value) => {
-        try {
-            const jsonValue = JSON.stringify(value)
-            await AsyncStorage.setItem(key, jsonValue)
-            console.log('save success', jsonValue)
-        } catch (e) {
-            // save error
-            console.log('cant save value: ' + e)
-        }
-    }
+    
     const setStorageCompleteValue = async (value) => {
         try {
             const jsonValue = JSON.stringify(value)
             await AsyncStorage.setItem('@completeData', jsonValue)
-            console.log('save complete data', jsonValue)
+            // console.log('save complete data', jsonValue)
         } catch (e) {
             // save error
             console.log('cant save value: ' + e)
         }
     }
-    // get value storage
-    const DATA = [
-        {
-            id: 1,
-            title: 'Tập thể dục',
-            content: 'Gập bụng 1000 cái, đu xà 1000 cái',
-            begin: 'March 21, 2012'
-        },
-        {
-            id: 2,
-            title: 'Shopping',
-            content: 'Dắt người yêu đi shopping',
-            begin: '30/11/2021'
-        },
-        {
-            id: 3,
-            title: 'Thăm gia đình người yêu',
-            content: 'Về quê thăm gia đình người yêu và xin phép ',
-            begin: '3/12/2021'
-        },
-        {
-            id: 4,
-            title: 'Cúng rằm',
-            content: 'Mua trái cây cúng rằm',
-            begin: '15/12/2021'
-        },
-        {
-            id: 5,
-            title: 'Cúng rằm',
-            content: 'Mua trái cây cúng rằm',
-            begin: '15/12/2021'
-        },
-        {
-            id: 6,
-            title: 'Cúng rằm',
-            content: 'Mua trái cây cúng rằm',
-            begin: '15/12/2021'
-        },
-        {
-            id: 7,
-            title: 'Cúng rằm',
-            content: 'Mua trái cây cúng rằm',
-            begin: '15/12/2021'
-        },
-        {
-            id: 8,
-            title: 'Cúng rằm',
-            content: 'Mua trái cây cúng rằm',
-            begin: '15/12/2021'
-        },
-        {
-            id: 9,
-            title: 'Cúng rằm',
-            content: 'Mua trái cây cúng rằm',
-            begin: '15/12/2021'
-        },
-
-
-    ]
+    
 
     const [data, setData] = useState();
     const [isRender, setRender] = useState(false);
@@ -124,14 +56,15 @@ function HomeScreen({ navigation, route }) {
 
     const [isErrorTitle, setErrorTitle] = useState(false);
     const [isErrorDes, setErrorDes] = useState(false);
+
     useEffect(() => {
-        console.log('first load data route')
-        setRender(true);
-    }, [])
+        getStorageValue()
+        console.log('first')
+}, [])
     useFocusEffect(
         React.useCallback(() => {
-            getStorageValue()
             getStorageCompleteValue()
+            console.log('call back')
         }, [])
     );
     useEffect(() => {
@@ -139,36 +72,40 @@ function HomeScreen({ navigation, route }) {
             const dataFromRoute = route.params?.data;
             console.log('dataFromRoute', dataFromRoute);
             setData((prev) => [...prev, dataFromRoute]);
-
+            
         }
     }, [route.params?.data]);
     //storage value when it update
 
     useEffect(() => {
-        if (data) {
-            data && console.log('dataLoad', data)
-            setRender(true);
+            data && console.log('dataCurrent', data)
             setStorageValue('@data', data)
-        }
-
-    }, [data])
-    useEffect(() => {
-        if (dataFromContext) {
-            dataFromContext && console.log('dataFromContext', dataFromContext)
-            setData(dataFromContext)
             setRender(true);
-        }
-    }, [dataFromContext])
+    }, [data])
 
     useEffect(() => {
-        completeData && console.log('complete:', completeData)
+        // completeData && console.log('complete:', completeData)
         setStorageCompleteValue(completeData)
     }, [completeData])
+    // storage value
+    const setStorageValue = async (key, value) => {
+        try {
+            if(value === undefined) {
+                console.log('value storage is null')
+                return;
+            }
+            const jsonValue = JSON.stringify(value)
+            await AsyncStorage.setItem(key, jsonValue)
+            console.log('save success', jsonValue)
+        } catch (e) {
+            // save error
+            console.log('cant save storage value: ' + e)
+        }
+    }
     async function getStorageValue() {
         try {
             const item = await AsyncStorage.getItem('@data');
             const value = item ? JSON.parse(item) : defaultInitialState;
-            //console.log('value get',value);
             setData(value);
             setRender(true);
         } catch (e) {
@@ -186,6 +123,19 @@ function HomeScreen({ navigation, route }) {
             console.log('cant get value complete: ' + e)
         }
     }
+    const createButtonAlert = (item) =>
+    Alert.alert(
+      "Hệ thống",
+      "Bạn có muốn xóa task này chứ ?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: "OK", onPress: () => onPressDeleteItem(item, '@data') }
+      ]
+    );
     const onPressDetail = (item) => {
         navigation.navigate('Details', { data: item });
     }
@@ -248,7 +198,7 @@ function HomeScreen({ navigation, route }) {
                                 paddingTop: 20,
                             }} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => onPressDeleteItem(item, '@data')}>
+                    <TouchableOpacity onPress={() => createButtonAlert(item)}>
                         <Image source={{ uri: 'https://previews.123rf.com/images/vectorstockcompany/vectorstockcompany1808/vectorstockcompany180810079/107109630-delete-button-icon-vector-isolated-on-white-background-for-your-web-and-mobile-app-design-delete-but.jpg' }}
                             style={{
                                 height: 30,
@@ -279,7 +229,7 @@ function HomeScreen({ navigation, route }) {
                 item.title = inputText.title;
                 item.content = inputText.content;
                 item.begin = inputText.begin;
-                console.log(inputText.begin);
+                console.log('edit: ',inputText);
                 return item;
             }
             return item;
@@ -316,11 +266,9 @@ function HomeScreen({ navigation, route }) {
                     data={data}
                     renderItem={(item, index) => renderItem(item, index)}
                     keyExtractor={item => item.id}
-                    extraData={isRender}
-                />
+                    extraData={isRender} />
                 <Modal animationType='fade'
                     visible={isModelVisible}>
-
                     <View style={styles.editContainer}>
                         <View style={styles.borderContainer}>
                             <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'orange', marginBottom: 20 }}>Edit task: </Text>
@@ -360,9 +308,7 @@ function HomeScreen({ navigation, route }) {
                                     <TouchableOpacity onPress={() => setOpen(true)}>
                                         <Text style={{ color: 'red', paddingTop: 20, paddingLeft: 90, fontSize: 20 }} title="Open" >Change time</Text>
                                     </TouchableOpacity>
-
                                 </View>
-
                                 <DatePicker
                                     modal
                                     mode="date"
@@ -372,7 +318,7 @@ function HomeScreen({ navigation, route }) {
                                         setOpen(false)
                                         setDate(date)
                                         setInputText({ id: inputText.id, title: inputText.title, content: inputText.content, begin: date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear() })
-                                        console.log(date)
+                                        
                                     }}
                                     onCancel={() => {
                                         setOpen(false)

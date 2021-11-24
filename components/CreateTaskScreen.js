@@ -37,10 +37,7 @@ function CreateTaskScreen({ route, navigation }) {
         errorContent: false,
         errorTime: false,
     })
-    // useEffect(() => {
-    //     count && console.log('count',count)
-    //     getLength(count)
-    // },[count])
+    
     useEffect(() => {
         dataLength && console.log('dataLength',dataLength);
     }, [dataLength]);
@@ -65,7 +62,7 @@ function CreateTaskScreen({ route, navigation }) {
         })
     };
     const onPressCreate = () => {
-        console.log(newTask)
+        // console.log(newTask)
         if(newTask.title === '') setError({ errorName: true, errorContent: isError.errorContent, errorTime: isError.errorTime })
         if(newTask.content === '') setError({ errorName: isError.errorName, errorContent: true, errorTime: isError.errorTime })
         if(newTask.begin === '') setError({ errorName: isError.errorName, errorContent: isError.errorContent, errorTime: true })
@@ -79,7 +76,7 @@ function CreateTaskScreen({ route, navigation }) {
         const lastObj = value.slice(-1);
         let result = lastObj.map(a => a.id)
         setDataLength(Number(result))
-        console.log(Number(result))
+        // console.log(Number(result))
     }
     async function getStorageValue() {
         try {

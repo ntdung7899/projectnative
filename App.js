@@ -95,6 +95,7 @@ const App = ({ navigation, route }) => {
             const item = await AsyncStorage.getItem('@data');
             const value = item ? JSON.parse(item) : DATA;
             //console.log(value);
+            value.sort((a,b) => a.id - b.id);
             setData(value);
         } catch (e) {
             console.log('cant get value in app.js: ' + e)
@@ -103,6 +104,7 @@ const App = ({ navigation, route }) => {
     
     useEffect(() => {
         getStorageValue();
+        
     }, [])
     
     useEffect(() => {
@@ -116,8 +118,7 @@ const App = ({ navigation, route }) => {
         <NotificationContext.Provider value={data}>
                 <Tab.Navigator screenOptions={screenOptions}>
                     <Tab.Screen name='Home' color='red' component={HomeScreen} initialParams={{ dataItem: data }} />
-                    <Tab.Screen name='CreateTask' color='red' component={CreateTaskScreen} initialParams={{ data: data }} />
-                    <Tab.Screen name='Details' color='red' component={DetailsScreen} />
+                    <Tab.Screen name='CreateTask' color='red' component={CreateTaskScreen} initialParams={{ data: data }} />               
                     <Tab.Screen name='Complete' color='red' component={CompleteScreen}/>
                 </Tab.Navigator>
         </NotificationContext.Provider>
@@ -149,14 +150,5 @@ const screenOptions = ({ route }) => ({
 
 
 })
-function counterReducer(state = { value: 0 }, action) {
-    switch (action.type) {
-        case 'incremented':
-            return { value: state.value + 1 }
-        case 'decremented':
-            return { value: state.value - 1 }
-        default:
-            return state
-    }
-}
+
 export default App;
