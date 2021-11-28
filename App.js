@@ -93,8 +93,11 @@ const App = ({ navigation, route }) => {
     async function getStorageValue() {
         try {
             const item = await AsyncStorage.getItem('@data');
+            if(item === undefined){
+                console.log('cant get storage')
+                return ;
+            }
             const value = item ? JSON.parse(item) : DATA;
-            //console.log(value);
             value.sort((a,b) => a.id - b.id);
             setData(value);
         } catch (e) {

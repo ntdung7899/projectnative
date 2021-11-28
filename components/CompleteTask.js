@@ -64,11 +64,11 @@ function CompleteTask({ navigation, route }) {
   }, [completeData]);
   const onPressBackItem = (value) => {
     const newData = completeData.filter(item => item.id !== value.id)
-    
     setStorageValue(value);
     removeItem();
     setCompleteData(newData);
     setRender(true);
+    navigation.navigate('Home', { screen: 'Home', data: value })
   }
   const removeItem = async () => {
     await AsyncStorage.removeItem('@completeData')
@@ -78,6 +78,7 @@ function CompleteTask({ navigation, route }) {
       const getData = await AsyncStorage.getItem('@data')
       const convertData = JSON.parse(getData)
       convertData.push(value)
+      console.log('convertData', convertData)
       await AsyncStorage.setItem('@data', JSON.stringify(convertData))
       console.log('save success')
     } catch (e) {

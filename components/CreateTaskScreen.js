@@ -73,10 +73,11 @@ function CreateTaskScreen({ route, navigation }) {
         }
     }
     const getLength = (value) => {
+        value.sort((a,b) => a.id - b.id);
         const lastObj = value.slice(-1);
         let result = lastObj.map(a => a.id)
         setDataLength(Number(result))
-        // console.log(Number(result))
+        console.log(Number(result))
     }
     async function getStorageValue() {
         try {

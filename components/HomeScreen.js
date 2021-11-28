@@ -28,7 +28,11 @@ function HomeScreen({ navigation, route }) {
     
     const setStorageCompleteValue = async (value) => {
         try {
+            if( value === undefined ) {
+                return;
+            }
             const jsonValue = JSON.stringify(value)
+            
             await AsyncStorage.setItem('@completeData', jsonValue)
             // console.log('save complete data', jsonValue)
         } catch (e) {
@@ -37,7 +41,64 @@ function HomeScreen({ navigation, route }) {
         }
     }
     
+    const defaultInitialState = [
+        {
+            id: 1,
+            title: 'Tập thể dục',
+            content: 'Gập bụng 1000 cái, đu xà 1000 cái',
+            begin: 'March 21, 2012'
+        },
+        {
+            id: 2,
+            title: 'Shopping',
+            content: 'Dắt người yêu đi shopping',
+            begin: '30/11/2021'
+        },
+        {
+            id: 3,
+            title: 'Thăm gia đình người yêu',
+            content: 'Về quê thăm gia đình người yêu và xin phép ',
+            begin: '3/12/2021'
+        },
+        {
+            id: 4,
+            title: 'Cúng rằm',
+            content: 'Mua trái cây cúng rằm',
+            begin: '15/12/2021'
+        },
+        {
+            id: 5,
+            title: 'Cúng rằm',
+            content: 'Mua trái cây cúng rằm',
+            begin: '15/12/2021'
+        },
+        {
+            id: 6,
+            title: 'Cúng rằm',
+            content: 'Mua trái cây cúng rằm',
+            begin: '15/12/2021'
+        },
+        {
+            id: 7,
+            title: 'Cúng rằm',
+            content: 'Mua trái cây cúng rằm',
+            begin: '15/12/2021'
+        },
+        {
+            id: 8,
+            title: 'Cúng rằm',
+            content: 'Mua trái cây cúng rằm',
+            begin: '15/12/2021'
+        },
+        {
+            id: 9,
+            title: 'Cúng rằm',
+            content: 'Mua trái cây cúng rằm',
+            begin: '15/12/2021'
+        },
 
+
+    ]
     const [data, setData] = useState();
     const [isRender, setRender] = useState(false);
     const [isModelVisible, setModelVisible] = useState(false);
@@ -64,6 +125,7 @@ function HomeScreen({ navigation, route }) {
     useFocusEffect(
         React.useCallback(() => {
             getStorageCompleteValue()
+            
             console.log('call back')
         }, [])
     );
@@ -71,8 +133,9 @@ function HomeScreen({ navigation, route }) {
         if (route.params?.data) {
             const dataFromRoute = route.params?.data;
             console.log('dataFromRoute', dataFromRoute);
+            const mergeData =  [...data, dataFromRoute]
+            console.log('mergeData', mergeData)
             setData((prev) => [...prev, dataFromRoute]);
-            
         }
     }, [route.params?.data]);
     //storage value when it update
@@ -84,7 +147,7 @@ function HomeScreen({ navigation, route }) {
     }, [data])
 
     useEffect(() => {
-        // completeData && console.log('complete:', completeData)
+        completeData && console.log('complete:', completeData)
         setStorageCompleteValue(completeData)
     }, [completeData])
     // storage value
@@ -115,6 +178,10 @@ function HomeScreen({ navigation, route }) {
     async function getStorageCompleteValue() {
         try {
             const item = await AsyncStorage.getItem('@completeData');
+            if (item === undefined || item === null) {
+                console.log('complete task is null')
+                return;
+            }
             const value = item ? JSON.parse(item) : defaultInitialState;
             //console.log('value get',value);
             setCompleteData(value);
@@ -140,8 +207,8 @@ function HomeScreen({ navigation, route }) {
         navigation.navigate('Details', { data: item });
     }
     const onPressCompleteItem = (value) => {
-
-        setCompleteData((prev) => [...prev, value])
+        console.log('click value', value);
+       setCompleteData((prev) => [...prev, value]);
         
         const newData = data.filter(item => item.id !== value.id)
         setData(newData);
