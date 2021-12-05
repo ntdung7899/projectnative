@@ -4,22 +4,16 @@ import {
     StyleSheet,
     Text,
     FlatList,
-    ImageBackground,
     Image,
     TouchableOpacity,
     SafeAreaView,
     Modal,
-    LogBox,
     Alert,
-    Button,
 } from 'react-native';
 import { HelperText, TextInput } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-date-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import CreateTaskScreen from './CreateTaskScreen';
-import LoginScreen from './LoginScreen';
-import NotificationContext from './NotificationContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
@@ -141,15 +135,35 @@ function HomeScreen({ navigation, route }) {
     //storage value when it update
 
     useEffect(() => {
-            data && console.log('dataCurrent', data)
+            
+            if(data !== undefined) {
+                return;
+            }
             setStorageValue('@data', data)
             setRender(true);
     }, [data])
 
     useEffect(() => {
-        completeData && console.log('complete:', completeData)
+        
         setStorageCompleteValue(completeData)
     }, [completeData])
+    useEffect(() => {
+        const {params} = route;
+        console.log('dataEditBack', params?.updatedTask)
+        if (params?.updatedTask) {
+          const tasKListTemp = [...data];
+    
+          tasKListTemp.forEach(item => {
+            if (item.id === params?.updatedTask.id) {
+              item.title = params?.updatedTask?.name;
+              item.content = params?.updatedTask?.des;
+              item.begin = params?.updatedTask?.time;
+            }
+          });
+          setStorageValue('@data', tasKListTemp);
+          setData(tasKListTemp);
+        }
+      }, [route.params?.updatedTask]);
     // storage value
     const setStorageValue = async (key, value) => {
         try {
@@ -203,6 +217,20 @@ function HomeScreen({ navigation, route }) {
         { text: "OK", onPress: () => onPressDeleteItem(item, '@data') }
       ]
     );
+    const navToEditTask = item => {
+         console.log('item', item.content)
+        const selectedTask = {
+          id: item.id,
+          name: item.title,
+          des: item.content,
+          begin: item.begin
+        };
+        navigation.navigate({
+          name: 'EditTask',
+          params: {selectedTask},
+          merge: true,
+        });
+      };
     const onPressDetail = (item) => {
         navigation.navigate('Details', { data: item });
     }
@@ -249,7 +277,7 @@ function HomeScreen({ navigation, route }) {
 
                 </View>
                 <View style={styles.rightItem}>
-                    <TouchableOpacity style={{ marginRight: 10 }} onPress={() => onPressEditItem(item)}>
+                    <TouchableOpacity style={{ marginRight: 10 }} onPress={() => navToEditTask(item)}>
                         <Image source={{ uri: 'https://cdn4.vectorstock.com/i/1000x1000/09/73/edit-icon-vector-22390973.jpg' }}
                             style={{
                                 height: 30,
@@ -279,19 +307,10 @@ function HomeScreen({ navigation, route }) {
             </View>
         </View>
 
-
     );
 
-    const onPressEditItem = (item) => {
-
-        setModelVisible(true);
-        setInputText({ id: item.id, title: item.title, content: item.content, begin: item.begin });
-        setEditText(item.id);
-
-
-    };
-    const handleSaveEditItem = (editText) => {
-        const newData = data.map(item => {
+    const handleSaveEditItem =  (editText) => {
+        const newData =  data.map(item => {
             if (item.id == editText) {
                 item.title = inputText.title;
                 item.content = inputText.content;
@@ -301,11 +320,13 @@ function HomeScreen({ navigation, route }) {
             }
             return item;
         })
-
         setData(newData);
-        setRender(true);
+        Alert.alert('data', '' + JSON.stringify(data))
+         setModelVisible(false);
     }
     const onPressSaveEdit = () => {
+        // console.log('time', inputText);
+        Alert.alert('save', ''+ inputText.title + ' \n' + inputText.content)
         if (inputText.title.length < 1) {
             setErrorTitle(true)
         }
@@ -314,7 +335,6 @@ function HomeScreen({ navigation, route }) {
         }
         else {
             handleSaveEditItem(editText);
-            setModelVisible(false);
         }
 
     }
@@ -381,10 +401,15 @@ function HomeScreen({ navigation, route }) {
                                     mode="date"
                                     open={open}
                                     date={date}
+                                    onDateChange = {(d) => console.log('dddd',d)}
+                                    
                                     onConfirm={(date) => {
                                         setOpen(false)
+                                        //console.log('dddd',date.getMonth())
+                                        const month = Number(date.getMonth()) + 1
+                                       // console.log('month',month)
                                         setDate(date)
-                                        setInputText({ id: inputText.id, title: inputText.title, content: inputText.content, begin: date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear() })
+                                        setInputText({ id: inputText.id, title: inputText.title, content: inputText.content, begin: date.getDate()  + '/' + month + '/' + date.getFullYear() })
                                         
                                     }}
                                     onCancel={() => {

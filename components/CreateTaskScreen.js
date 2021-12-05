@@ -62,11 +62,18 @@ function CreateTaskScreen({ route, navigation }) {
         })
     };
     const onPressCreate = () => {
-        // console.log(newTask)
-        if(newTask.title === '') setError({ errorName: true, errorContent: isError.errorContent, errorTime: isError.errorTime })
-        if(newTask.content === '') setError({ errorName: isError.errorName, errorContent: true, errorTime: isError.errorTime })
-        if(newTask.begin === '') setError({ errorName: isError.errorName, errorContent: isError.errorContent, errorTime: true })
+         console.log(newTask)
+        if(newTask.title == '') setError({ errorName: true, errorContent: isError.errorContent, errorTime: isError.errorTime })
+        if(newTask.content == '') setError({ errorName: isError.errorName, errorContent: true, errorTime: isError.errorTime })
+        if(newTask.begin == '' || newTask.begin === undefined) {
+            
+            setError({ errorName: isError.errorName, errorContent: isError.errorContent, errorTime: true })
+            
+        }
         else {
+            if(newTask.title == '' || newTask.content == ''){
+                return;
+            }
             setNewTask(defaultState)
             setError({ errorName: false, errorContent: false, errorTime: false })
             navigation.navigate('Home', { screen: 'Home', data: newTask })
@@ -77,7 +84,7 @@ function CreateTaskScreen({ route, navigation }) {
         const lastObj = value.slice(-1);
         let result = lastObj.map(a => a.id)
         setDataLength(Number(result))
-        console.log(Number(result))
+        // console.log(Number(result))
     }
     async function getStorageValue() {
         try {
@@ -136,8 +143,9 @@ function CreateTaskScreen({ route, navigation }) {
                             date={date}
                             onConfirm={(date) => {
                                 setOpen(false)
+                                const month = Number(date.getMonth()) + 1
                                 setDate(date)
-                                setNewTask({ id: dataLength + 1, title: newTask.title, content: newTask.content, begin: date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear() })
+                                setNewTask({ id: dataLength + 1, title: newTask.title, content: newTask.content, begin: date.getDate() + '/' +month + '/' + date.getFullYear() })
                                 setError({
                                     errorName: isError.errorName,
                                     errorContent: isError.errorName,
